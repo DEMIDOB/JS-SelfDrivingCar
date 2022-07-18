@@ -1,4 +1,7 @@
-const TRAFFIC_SIZE = 10;
+const TRAFFIC_SIZE = 5;
+const INITIAL_CARS_AMOUNT = 1000;
+const RESPAWN = false;
+
 let globalTrafficIndex = 0;
 
 const roadCanvas = document.getElementById("mainCanvas");
@@ -7,7 +10,7 @@ roadCanvas.width = 200;
 const roadCtx = roadCanvas.getContext("2d");
 const road = new Road(roadCanvas.width / 2, roadCanvas.width * .9, 3)
 let winner = new Car(road.getLaneCenter(1), 100, 30, 50, "AI");
-let cars = generateCars(500);
+let cars = generateCars(INITIAL_CARS_AMOUNT);
 let traffic = generateTraffic(TRAFFIC_SIZE);
 
 function generateCars(carsAmount) {
@@ -27,7 +30,7 @@ function generateCars(carsAmount) {
 
         if (winnerBrain) {
             cars[i].brain = JSON.parse(localStorage.getItem("bestBrain"));
-            NeuNet.mutate(cars[i].brain, 0.1);
+            NeuNet.mutate(cars[i].brain, 100 / INITIAL_CARS_AMOUNT);
         }
     }
 
@@ -36,7 +39,7 @@ function generateCars(carsAmount) {
 
 function generateTraffic(carsAmount) {
     const traffic = [
-        // new Car(road.getLaneCenter(1), -100, 30, 50, "DUMMY", 2)
+        new Car(road.getLaneCenter(1), -100, 30, 50, "DUMMY", 2)
     ];
 
     for (let i = traffic.length; i < carsAmount; ++i)
@@ -55,8 +58,8 @@ function animate() {
         traffic.push(new Car(road.getLaneCenter(Math.round(Math.random() * 10) % road.laneCount), winner.y - 300 * (Math.random() / 2 + 2.5), 30, 50, "DUMMY", 2 + Math.random() - 0.3));
     }
 
-    traffic.forEach(dummyCar => dummyCar.update(road.borders, []));
-    cars.forEach(car => car.update(road.borders, traffic));
+    traffic.forEach(dummyCar => dummyCar.update(road, []));
+    cars.forEach(car => car.update(road, traffic));
 
     let newCars = [];
     cars = cars.filter(car => {
@@ -65,7 +68,7 @@ function animate() {
 
         if (car.y <= winner.y + roadCanvas.height) {
             for (let i = 0; i < 1; ++i) {
-                let newCar = new Car(car.x, car.y, 30, 50, "AI");
+                let newCar = new Car(car.x, car.y, car.width, car.height, "AI");
                 newCar.brain = car.brain;
                 newCar.angle = car.angle;
                 newCar.speed = car.speed / 50;
@@ -76,6 +79,17 @@ function animate() {
 
         return false;
     });
+
+    if (RESPAWN && cars.length < INITIAL_CARS_AMOUNT / 2) {
+        for (let i = cars.length; i < INITIAL_CARS_AMOUNT; ++i) {
+            let newCar = new Car(winner.x, winner.y - winner.width / 2, winner.width, winner.height, "AI");
+            newCar.brain = JSON.parse(JSON.stringify(winner.brain));
+            newCar.angle = winner.angle;
+            newCar.speed = winner.speed;
+            NeuNet.mutate(newCar.brain, 0.05);
+            newCars.push(newCar);
+        }
+    }
 
     cars.forEach(car => {
         if (car.getRating() > winner.getRating() || winner.damaged)
@@ -118,6 +132,11 @@ function animate() {
     //         }
     //     }
     // }
+
+    if (Math.abs(winner.y) > 5000 || winner.damaged) {
+        save(true);
+        location.reload();
+    }
 
     requestAnimationFrame(animate);
 }

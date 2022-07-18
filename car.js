@@ -35,12 +35,14 @@ class Car {
     }
 
     getRating() {
-        return -this.y;
+        return -this.y + this.getAvgSpeed();
     }
 
-    update(roadBorders, traffic) {
+    update(road, traffic) {
+        let roadBorders = road.borders;
+
         if (!this.damaged) {
-            this.#move();
+            this.#move(road);
             this.polygon = this.createPolygon();
             this.damaged = this.#assessDamage(roadBorders, traffic);
         } else {
@@ -92,7 +94,7 @@ class Car {
         ];
     }
 
-    #move() {
+    #move(road) {
         // forward-backward
 
         if (this.controls.forward)
@@ -116,20 +118,6 @@ class Car {
 
         if (Math.abs(this.speed) >= this.friction) {
             const flip = this.speed / this.maxSpeed;
-            // if (this.controls.left || (!this.controls.left && !this.controls.right && this.angleAcceleration < -this.angleFriction))
-            //     this.angleAcceleration += .002 * flip;
-            //
-            // if (this.controls.right || (!this.controls.left && !this.controls.right && this.angleAcceleration > this.angleFriction))
-            //     this.angleAcceleration -= .002 * flip;
-            //
-            // if (Math.abs(this.angleAcceleration) < this.angleFriction)
-            //     this.angleAcceleration = 0;
-            //
-            // if (Math.abs(this.angleAcceleration) > this.maxAngleAcceleration)
-            //     this.angleAcceleration = this.maxAngleAcceleration * Math.abs(this.angleAcceleration) / this.angleAcceleration;
-            //
-            // this.angle += this.angleAcceleration;
-
             if (this.controls.left)
                 this.angle += 0.02 * flip;
 
@@ -138,9 +126,13 @@ class Car {
 
             if (!(this.controls.left || this.controls.right) && Math.abs(this.angle) < Math.PI / 40)
                 this.angle /= 10;
-        } else {
-            this.angleAcceleration = 0;
         }
+
+        // const currentLane = road.getClosestLane(this.x);
+        // const distToLaneCenter = Math.abs(this.x - road.getLaneCenter(currentLane));
+        // let k = 1;
+        // if (distToLaneCenter > road.laneWidth / 3)
+        //     k = 1 - distToLaneCenter * 0.5 / road.laneWidth;
 
         this.x -= this.speed * Math.sin(this.angle);
         this.y -= this.speed * Math.cos(this.angle);

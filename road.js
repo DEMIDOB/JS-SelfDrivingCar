@@ -27,6 +27,10 @@ class Road {
         return this.left + this.laneWidth * (laneIdx + .5)
     }
 
+    getClosestLane(x) {
+        return Math.floor(x / this.laneWidth);
+    }
+
     draw(ctx) {
         ctx.lineWidth = 5;
         ctx.strokeStyle = "white";
