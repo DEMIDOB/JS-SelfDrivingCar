@@ -4,15 +4,35 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Self-Driving Car</title>
+    <!-- CSS only -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-0evHe/X+R7YkIZDRvuzKMRqM+OrBnVFBL6DOitfPri4tjfHxaWutUpFmBp4vmVor" crossorigin="anonymous">
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <canvas id="mainCanvas"></canvas>
+    <div id="roadArea">
+        <canvas id="mainCanvas"></canvas>
 
-    <div id="verticalControls">
-        <button onclick="save(true)">💽</button>
-        <button onclick="discard()">🗑</button>
+        <div id="verticalControls">
+            <button onclick="togglePause(this)">| |</button>
+            <button onclick="save(true)">💽</button>
+            <button onclick="discard()">🗑</button>
+        </div>
     </div>
+
+    <div id="brains">
+        <p class="brainType">
+            Current brain
+            <textarea name="" id="currentBrain" cols="30" rows="10"></textarea>
+            <button onclick="copyCurrentBrain()">Copy</button>
+<!--            <button onclick="copyWinnerCar()">Copy car</button>-->
+        </p>
+        <p class="brainType">
+            Custom brain
+            <textarea name="" id="customBrain" cols="30" rows="10"></textarea>
+            <button onclick="applyCurrentBrain()">Apply</button>
+        </p>
+    </div>
+
 
     <script src="net.js"></script>
     <script src="utils.js"></script>

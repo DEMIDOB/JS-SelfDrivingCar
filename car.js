@@ -1,5 +1,5 @@
 class Car {
-    constructor(x, y, width, height, controlType = "DUMMY", maxSpeed = 3) {
+    constructor(x, y, width, height, controlType = "DUMMY", maxSpeed = 3.5) {
         this.x = x;
         this.y = y;
         this.width = width;
@@ -24,18 +24,24 @@ class Car {
 
         if (controlType !== "DUMMY") {
             this.sensor = new Sensor(this);
-            this.brain = new NeuNet([this.sensor.rayCount, 6, 4]);
+            this.brain = new NeuNet([this.sensor.rayCount, 21, 6, 4]);
         }
 
         this.controls = new Controls(controlType);
     }
 
     getAvgSpeed() {
-        return Math.abs(this.y - this.initialY) / Date.now() - this.createdAt;
+        return Math.abs(this.y - this.initialY) / (Date.now() - this.createdAt);
     }
 
-    getRating() {
-        return -this.y + this.getAvgSpeed();
+    getRating(road) {
+        // const currentLane = road.getClosestLane(this.x);
+        // const distToLaneCenter = Math.abs(this.x - road.getLaneCenter(currentLane));
+        // let k = 1;
+        // k = 1 - distToLaneCenter * 0.5 / road.laneWidth;
+
+        // return -this.y * this.getAvgSpeed();
+        return -this.y;
     }
 
     update(road, traffic) {
@@ -127,12 +133,6 @@ class Car {
             if (!(this.controls.left || this.controls.right) && Math.abs(this.angle) < Math.PI / 40)
                 this.angle /= 10;
         }
-
-        // const currentLane = road.getClosestLane(this.x);
-        // const distToLaneCenter = Math.abs(this.x - road.getLaneCenter(currentLane));
-        // let k = 1;
-        // if (distToLaneCenter > road.laneWidth / 3)
-        //     k = 1 - distToLaneCenter * 0.5 / road.laneWidth;
 
         this.x -= this.speed * Math.sin(this.angle);
         this.y -= this.speed * Math.cos(this.angle);

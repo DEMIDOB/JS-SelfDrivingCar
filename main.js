@@ -1,8 +1,9 @@
 const TRAFFIC_SIZE = 5;
-const INITIAL_CARS_AMOUNT = 1000;
+const INITIAL_CARS_AMOUNT = 1;
 const RESPAWN = false;
 
 let globalTrafficIndex = 0;
+let running = true;
 
 const roadCanvas = document.getElementById("mainCanvas");
 roadCanvas.width = 200;
@@ -30,7 +31,7 @@ function generateCars(carsAmount) {
 
         if (winnerBrain) {
             cars[i].brain = JSON.parse(localStorage.getItem("bestBrain"));
-            NeuNet.mutate(cars[i].brain, 100 / INITIAL_CARS_AMOUNT);
+            NeuNet.mutate(cars[i].brain, 0.05);
         }
     }
 
@@ -39,11 +40,11 @@ function generateCars(carsAmount) {
 
 function generateTraffic(carsAmount) {
     const traffic = [
-        new Car(road.getLaneCenter(1), -100, 30, 50, "DUMMY", 2)
+        // new Car(road.getLaneCenter(1), -100, 30, 50, "DUMMY", 2)
     ];
 
     for (let i = traffic.length; i < carsAmount; ++i)
-        traffic.push(new Car(road.getLaneCenter(Math.round(Math.random() * 10) % road.laneCount), -100 - 200 * i * (Math.random() / 2 + 0.5), 30, 50, "DUMMY", 2 + Math.random() - 0.3));
+        traffic.push(new Car(road.getLaneCenter(Math.round(Math.random() * 10) % road.laneCount), -100 - 300 * i * (Math.random() / 2 + 0.5), 30, 50, "DUMMY", 2 + Math.random() * 0.5 - 0.3));
 
     globalTrafficIndex = carsAmount;
 
@@ -51,50 +52,26 @@ function generateTraffic(carsAmount) {
 }
 
 function animate() {
-    traffic = traffic.filter(trafficCar => (trafficCar.y <= winner.y + roadCanvas.height * 0.3));
-    while (traffic.length < TRAFFIC_SIZE) {
-        globalTrafficIndex++;
-        console.log("boom");
-        traffic.push(new Car(road.getLaneCenter(Math.round(Math.random() * 10) % road.laneCount), winner.y - 300 * (Math.random() / 2 + 2.5), 30, 50, "DUMMY", 2 + Math.random() - 0.3));
-    }
-
-    traffic.forEach(dummyCar => dummyCar.update(road, []));
-    cars.forEach(car => car.update(road, traffic));
-
     let newCars = [];
-    cars = cars.filter(car => {
-        if ((!car.damaged && car.y <= winner.y + roadCanvas.height * 0.5))
-            return true;
 
-        if (car.y <= winner.y + roadCanvas.height) {
-            for (let i = 0; i < 1; ++i) {
-                let newCar = new Car(car.x, car.y, car.width, car.height, "AI");
-                newCar.brain = car.brain;
-                newCar.angle = car.angle;
-                newCar.speed = car.speed / 50;
-                NeuNet.mutate(newCar.brain, 0.2);
-                newCars.push(newCar);
-            }
+    if (running) {
+        traffic = traffic.filter(trafficCar => (trafficCar.y <= winner.y + roadCanvas.height * 0.3));
+        while (traffic.length < TRAFFIC_SIZE) {
+            globalTrafficIndex++;
+            console.log("boom");
+            traffic.push(new Car(road.getLaneCenter(Math.round(Math.random() * 10) % road.laneCount), winner.y - 300 * (Math.random() / 2 + 2.5), 30, 50, "DUMMY", 2 + Math.random() * 0.5 - 0.3));
         }
 
-        return false;
-    });
+        traffic.forEach(dummyCar => dummyCar.update(road, []));
+        cars.forEach(car => car.update(road, traffic));
 
-    if (RESPAWN && cars.length < INITIAL_CARS_AMOUNT / 2) {
-        for (let i = cars.length; i < INITIAL_CARS_AMOUNT; ++i) {
-            let newCar = new Car(winner.x, winner.y - winner.width / 2, winner.width, winner.height, "AI");
-            newCar.brain = JSON.parse(JSON.stringify(winner.brain));
-            newCar.angle = winner.angle;
-            newCar.speed = winner.speed;
-            NeuNet.mutate(newCar.brain, 0.05);
-            newCars.push(newCar);
-        }
+        cars = cars.filter(car => (!car.damaged && car.y <= winner.y + roadCanvas.height * 0.5));
+
+        cars.forEach(car => {
+            if (car.getRating(road) > winner.getRating(road) || winner.damaged)
+                winner = car;
+        });
     }
-
-    cars.forEach(car => {
-        if (car.getRating() > winner.getRating() || winner.damaged)
-            winner = car;
-    });
 
     roadCanvas.height = window.innerHeight;
 
@@ -113,30 +90,16 @@ function animate() {
 
     roadCtx.restore();
 
-    newCars.forEach(car => cars.push(car));
+    if (running) {
+        newCars.forEach(car => cars.push(car));
+        document.getElementById("currentBrain").innerHTML = JSON.stringify(winner.brain);
+    }
 
-    // let shouldReload = true;
-    // let avgDist = 0;
-    // for (let i = 0; i < cars.length; ++i) {
-    //     avgDist += cars[i].y + 100;
-    //     if (Math.abs(cars[i].speed) > 1)
-    //         shouldReload = false;
-    // }
-    //
-    // if (shouldReload) {
-    //     if (cars.length > 0) {
-    //         avgDist /= cars.length;
-    //         if (Math.abs(winner.y) > roadCanvas.height * 0.2) {
-    //             save();
-    //             location.reload();
-    //         }
-    //     }
-    // }
-
-    if (Math.abs(winner.y) > 5000 || winner.damaged) {
+    if ((Math.abs(winner.y) > 12000 || winner.damaged) && INITIAL_CARS_AMOUNT > 1) {
         save(true);
         location.reload();
-    }
+    } else if (winner.damaged && INITIAL_CARS_AMOUNT === 1)
+        location.reload();
 
     requestAnimationFrame(animate);
 }
@@ -154,6 +117,25 @@ function save(force = false) {
 function discard() {
     localStorage.removeItem("bestBrain");
     localStorage.removeItem("prevBestY");
+}
+
+function togglePause(button) {
+    running = !running;
+    button.innerHTML = running ? "| |" : ">"
+}
+
+function copyCurrentBrain() {
+    navigator.clipboard.writeText(JSON.stringify(winner.brain));
+}
+
+function applyCurrentBrain() {
+    const strData = document.getElementById("customBrain").value;
+    console.log(strData);
+    winner.brain = JSON.parse(strData);
+}
+
+function copyWinnerCar() {
+    navigator.clipboard.writeText(JSON.stringify(winner));
 }
 
 animate();
