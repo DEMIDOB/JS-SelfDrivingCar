@@ -40,7 +40,7 @@ class Car {
         // let k = 1;
         // k = 1 - distToLaneCenter * 0.5 / road.laneWidth;
 
-        // return -this.y * this.getAvgSpeed();
+        return -this.y * this.getAvgSpeed();
         return -this.y;
     }
 
