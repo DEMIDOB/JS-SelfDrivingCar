@@ -1,5 +1,5 @@
 const TRAFFIC_SIZE = 5;
-const INITIAL_CARS_AMOUNT = 5000;
+const INITIAL_CARS_AMOUNT = 1;
 const RESPAWN = false;
 
 let globalTrafficIndex = 0;
