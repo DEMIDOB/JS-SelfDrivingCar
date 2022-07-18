@@ -1,5 +1,5 @@
 const TRAFFIC_SIZE = 5;
-const INITIAL_CARS_AMOUNT = 5000;
+const INITIAL_CARS_AMOUNT = 1;
 const RESPAWN = false;
 
 let globalTrafficIndex = 0;
@@ -95,7 +95,7 @@ function animate() {
         document.getElementById("currentBrain").innerHTML = JSON.stringify(winner.brain);
     }
 
-    if ((Math.abs(winner.y) > 6000 || winner.damaged || cars.length < INITIAL_CARS_AMOUNT / 100) && INITIAL_CARS_AMOUNT > 1) {
+    if ((Math.abs(winner.y) > 15000 || winner.damaged || cars.length < INITIAL_CARS_AMOUNT / 300) && INITIAL_CARS_AMOUNT > 1) {
         save(true);
         location.reload();
     } else if (winner.damaged && INITIAL_CARS_AMOUNT === 1)
