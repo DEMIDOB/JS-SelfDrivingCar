@@ -57,3 +57,7 @@ function polysIntersect(p1, p2) {
 
     return false;
 }
+
+function lerp(from, to, pct) {
+    return from + (to - from) * pct;
+}

@@ -1,7 +1,21 @@
 body {
     background-color: lightgreen;
     margin: 0;
-    text-align: center;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+#verticalControls {
+    display: flex;
+    flex-direction: column;
+}
+
+#verticalControls button {
+    margin: 5px;
+    padding: 10px;
+    border-radius: 5px;
+    cursor: pointer;
 }
 
 #mainCanvas {

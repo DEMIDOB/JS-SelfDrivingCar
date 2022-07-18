@@ -1,9 +1,9 @@
 class Sensor {
     constructor(car) {
         this.car = car;
-        this.rayCount = 30;
-        this.rayLength = 150;
-        this.raySpread = Math.PI * 2;
+        this.rayCount = 17;
+        this.rayLength = 300;
+        this.raySpread = Math.PI;
 
         this.rays = [];
         this.readings = [];
@@ -16,8 +16,10 @@ class Sensor {
 
         roadBorders.forEach(border => segments.push(border));
         traffic.forEach(car => {
-            for (let i = 0; i < car.polygon.length; ++i) {
-                segments.push([car.polygon[i], car.polygon[(i + 1) % car.polygon.length]]);
+            if (!(car.x === this.car.x && car.y === this.car.y)) {
+                for (let i = 0; i < car.polygon.length; ++i) {
+                    segments.push([car.polygon[i], car.polygon[(i + 1) % car.polygon.length]]);
+                }
             }
         });
 

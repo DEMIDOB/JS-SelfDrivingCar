@@ -6,6 +6,9 @@ class Car {
         this.height = height;
         this.controlType = controlType;
 
+        this.initialY = y;
+        this.createdAt = Date.now();
+
         this.speed = 0;
         this.acceleration = 0.2;
         this.maxSpeed = maxSpeed;
@@ -27,18 +30,28 @@ class Car {
         this.controls = new Controls(controlType);
     }
 
-    update(roadBorders, traffic) {
-        if (!this.damaged)
-            this.#move();
+    getAvgSpeed() {
+        return Math.abs(this.y - this.initialY) / Date.now() - this.createdAt;
+    }
 
-        this.polygon = this.#createPolygon();
-        this.damaged = this.#assessDamage(roadBorders, traffic);
+    getRating() {
+        return -this.y;
+    }
+
+    update(roadBorders, traffic) {
+        if (!this.damaged) {
+            this.#move();
+            this.polygon = this.createPolygon();
+            this.damaged = this.#assessDamage(roadBorders, traffic);
+        } else {
+            this.speed = 0;
+        }
 
         if (this.sensor) {
             this.sensor.update(roadBorders, traffic);
             const offsets = this.sensor.readings.map(s => s == null ? 0 : 1 - s.offset);
             const outputs = NeuNet.forward(offsets, this.brain);
-            console.log(outputs);
+            // console.log(outputs);
 
             if (this.controlType === "AI") {
                 this.controls.forward = outputs[0];
@@ -61,7 +74,7 @@ class Car {
         return false;
     }
 
-    #createPolygon() {
+    createPolygon() {
         const cos_a = Math.cos(this.angle);
         const sin_a = Math.sin(-this.angle);
 
@@ -122,6 +135,9 @@ class Car {
 
             if (this.controls.right)
                 this.angle -= 0.02 * flip;
+
+            if (!(this.controls.left || this.controls.right) && Math.abs(this.angle) < Math.PI / 40)
+                this.angle /= 10;
         } else {
             this.angleAcceleration = 0;
         }
@@ -130,24 +146,14 @@ class Car {
         this.y -= this.speed * Math.cos(this.angle);
     }
 
-    draw(ctx) {
-        // ctx.save();
-        //
+    draw(ctx, drawSensor) {
         ctx.fillStyle = "#565886";
 
         if (this.damaged)
             ctx.fillStyle = "#865656";
-        // ctx.translate(this.x, this.y);
-        // ctx.rotate(-this.angle);
-        //
-        // ctx.fillRect(
-        //     -this.width / 2,
-        //     -this.height / 2,
-        //     this.width,
-        //     this.height
-        // );
-        //
-        // ctx.restore();
+
+        if (this.controlType === "DUMMY")
+            ctx.fillStyle = "#56867b";
 
         ctx.beginPath();
         ctx.moveTo(this.polygon[0].x, this.polygon[0].y);
@@ -156,7 +162,7 @@ class Car {
         }
         ctx.fill();
 
-        if (this.sensor)
+        if (this.sensor && drawSensor)
             this.sensor.draw(ctx);
     }
 }
