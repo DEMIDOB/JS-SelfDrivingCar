@@ -65,7 +65,7 @@ function animate() {
         traffic.forEach(dummyCar => dummyCar.update(road, []));
         cars.forEach(car => car.update(road, traffic));
 
-        cars = cars.filter(car => (!car.damaged && car.y <= winner.y + roadCanvas.height * 0.5));
+        cars = cars.filter(car => (!car.damaged && car.y <= winner.y + roadCanvas.height * 0.3));
 
         cars.forEach(car => {
             if (car.getRating(road) > winner.getRating(road) || winner.damaged)
