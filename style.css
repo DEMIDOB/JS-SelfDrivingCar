@@ -24,7 +24,8 @@ body {
 button {
     padding: 10px;
     border-radius: 5px;
-    border: lightgray;
+    border: none;
+    background-color: whitesmoke;
     cursor: pointer;
     font-size: 20px;
     opacity: 80%;

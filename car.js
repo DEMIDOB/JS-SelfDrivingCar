@@ -30,6 +30,32 @@ class Car {
         this.controls = new Controls(controlType);
     }
 
+    clone() {
+        let copy = new Car(
+            this.x, this.y, this.width, this.height, this.controlType, this.maxSpeed
+        );
+
+        copy.createdAt = this.createdAt;
+
+        copy.speed = this.speed;
+        copy.acceleration = this.acceleration;
+        copy.friction = this.friction;
+
+        copy.angle = this.angle;
+        copy.polygon = this.polygon;
+        copy.damaged = this.damaged;
+
+        if (copy.controlType !== "DUMMY") {
+            copy.sensor = this.sensor.clone();
+            copy.sensor.car = copy;
+            copy.brain = clone(this.brain);
+        }
+
+        copy.controls = this.controls
+
+        return copy;
+    }
+
     getAvgSpeed() {
         return Math.abs(this.y - this.initialY) / (Date.now() - this.createdAt);
     }

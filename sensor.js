@@ -9,6 +9,19 @@ class Sensor {
         this.readings = [];
     }
 
+    clone() {
+        let copy = new Sensor(this.car);
+
+        copy.rayCount = this.rayCount;
+        copy.rayLength = this.rayLength;
+        copy.raySpread = this.raySpread;
+
+        copy.rays = this.rays;
+        copy.readings = this.readings;
+
+        return copy;
+    }
+
     update(roadBorders, traffic) {
         this.#castRays();
 

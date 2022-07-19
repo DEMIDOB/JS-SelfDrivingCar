@@ -1,5 +1,9 @@
 const inf = 1000000;
 
+function clone(obj) {
+    return Object.assign(Object.create(Object.getPrototypeOf(obj)), obj);
+}
+
 function getIntersection(A1, A2, B1, B2) {
     const k_A = (A2.y - A1.y) / (A2.x - A1.x);
     const b_A = A1.y - k_A * A1.x;
