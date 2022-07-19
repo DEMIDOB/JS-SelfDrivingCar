@@ -92,7 +92,6 @@ function animate() {
 
     if (running) {
         newCars.forEach(car => cars.push(car));
-        document.getElementById("currentBrain").innerHTML = JSON.stringify(winner.brain);
     }
 
     if ((Math.abs(winner.y) > 15000 || winner.damaged || cars.length < INITIAL_CARS_AMOUNT / 300) && INITIAL_CARS_AMOUNT > 1) {
