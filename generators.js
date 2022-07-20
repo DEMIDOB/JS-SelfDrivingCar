@@ -12,7 +12,7 @@ function generateCars(carsAmount, mutationAmount = 0.05) {
     cars.push(leader);
 
     for (let i = 1; i < carsAmount; ++i) {
-        cars.push(new Car(road.getLaneCenter(1), leader.y, 30, 50, "AI"));
+        cars.push(new Car(leader.x, leader.y, 30, 50, "AI"));
 
         if (leaderBrain) {
             cars[i].brain = JSON.parse(localStorage.getItem("bestBrain"));
