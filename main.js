@@ -1,6 +1,12 @@
+const params = new URLSearchParams(window.location.search);
+
+if (!params.has("ica"))
+    reloadWithIca(prompt("Initial cars amount:"));
+
 const SNAPSHOTS_PERIOD = 5;
+const SESSION_DURATION = 10 * 60;
 const TRAFFIC_SIZE = 5;
-const INITIAL_CARS_AMOUNT = 1;
+const INITIAL_CARS_AMOUNT = parseInt(params.get("ica"));
 const RESPAWN = false;
 
 let running = true;
@@ -11,9 +17,15 @@ roadCanvas.width = 200;
 const roadCtx = roadCanvas.getContext("2d");
 const road = new Road(roadCanvas.width / 2, roadCanvas.width * .9, 3)
 let leader = new Car(road.getLaneCenter(1), 100, 30, 50, "AI");
-let cars = generateCars(INITIAL_CARS_AMOUNT);
-let traffic = generateTraffic(TRAFFIC_SIZE);
+
+if (localStorage.getItem("bestBrain"))
+    leader.brain = JSON.parse(localStorage.getItem("bestBrain"));
+
+let cars = generateCars(INITIAL_CARS_AMOUNT, leader);
+let traffic = generateTraffic(TRAFFIC_SIZE, true);
 let globalTrafficIndex = INITIAL_CARS_AMOUNT;
+
+const initialLeader = leader.clone();
 
 const snapshots = [new Snapshot(road, traffic, leader, globalTrafficIndex), new Snapshot(road, traffic, leader, globalTrafficIndex)];
 
@@ -63,10 +75,7 @@ function animate() {
 }
 
 function reloadFromPreviousSnapshot() {
-    save();
-
     running = false;
-
     console.log("Reloading from the previous snapshot..");
 
     let snapshotToLoad = snapshots[1];
@@ -79,13 +88,18 @@ function reloadFromPreviousSnapshot() {
     globalTrafficIndex = snapshotToLoad.globalTrafficIndex;
 
     cars.filter(_ => false);
-    cars = generateCars(INITIAL_CARS_AMOUNT - 1, 0.008);
+    cars = generateCars(INITIAL_CARS_AMOUNT - 1, leader,0.02);
     cars.push(leader);
 
     running = true;
 }
 
-function save() {
+function save(doMerge = true) {
+    if (doMerge) {
+        let currentLeader = leader.clone();
+        leader.brain = NeuNet.merge(initialLeader.brain, currentLeader.brain, 0.15);
+    }
+
     localStorage.setItem("bestBrain", JSON.stringify(leader.brain));
 }
 
@@ -110,6 +124,17 @@ function applyCurrentBrain() {
     leader.brain = JSON.parse(strData);
 }
 
+function reloadWithIca(ica, doSave = false) {
+    if (doSave)
+        save();
+
+    params.set("ica", ica);
+
+    window.location.search = params.toString();
+    console.log(window.location.search)
+    // window.location.reload()
+}
+
 setInterval(function () {
     if (!running || leader.damaged)
         return;
@@ -120,6 +145,12 @@ setInterval(function () {
     console.log("Taken snapshot; after previous: ", snapshots[0].secondsElapsedSinceTaken());
 }, SNAPSHOTS_PERIOD * 1000);
 
-setTimeout(_ => location.reload(), 180000)
+setTimeout(_ => {
+    if (running && INITIAL_CARS_AMOUNT > 1) {
+        save();
+        location.reload();
+    }
+
+}, SESSION_DURATION * 1000)
 
 animate();

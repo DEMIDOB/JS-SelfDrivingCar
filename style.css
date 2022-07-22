@@ -67,3 +67,16 @@ button:hover {
 #mainCanvas {
     background-color: #1f1f1f;
 }
+
+#rightControlsArea>hr {
+    margin-left: 10px;
+    margin-right: 10px;
+    color: #56867b;
+}
+
+#trainNavigation {
+    margin: 10px;
+
+    display: flex;
+    justify-content: space-between;
+}

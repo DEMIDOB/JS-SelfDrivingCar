@@ -29,6 +29,21 @@ class NeuNet {
 
         return net;
     }
+
+    static merge(net1, net2, amount = 0.5) {
+        let mergedNet = clone(net1);
+
+        for (let layerIdx = 0; layerIdx < mergedNet.layers.length; ++layerIdx) {
+            for (let i = 0; i < mergedNet.layers[layerIdx].biases.length; ++i)
+                mergedNet.layers[layerIdx].biases[i] = lerp(net1.layers[layerIdx].biases[i], net2.layers[layerIdx].biases[i], amount);
+
+            for (let i = 0; i < mergedNet.layers[layerIdx].weights.length; ++i)
+                for (let j = 0; j < mergedNet.layers[layerIdx].weights[i].length; ++j)
+                    mergedNet.layers[layerIdx].weights[i][j] = lerp(net1.layers[layerIdx].weights[i][j], net2.layers[layerIdx].weights[i][j], amount);
+        }
+
+        return mergedNet;
+    }
 }
 
 class Layer {

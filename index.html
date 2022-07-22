@@ -15,23 +15,32 @@
         <div id="verticalControls">
             <button onclick="togglePause(this)">| |</button>
             <button onclick="reloadFromPreviousSnapshot()">♺</button>
-            <button onclick="save(true)">💽</button>
+            <button onclick="save(false)">💽</button>
             <button onclick="discard()">🗑</button>
         </div>
     </div>
 
-    <div id="brains">
-        <p class="brainType">
-            Current brain
-            <textarea name="" id="currentBrain" cols="30" rows="10"></textarea>
-            <button onclick="copyCurrentBrain()">Copy</button>
-<!--            <button onclick="copyWinnerCar()">Copy car</button>-->
-        </p>
-        <p class="brainType">
-            Custom brain
-            <textarea name="" id="customBrain" cols="30" rows="10"></textarea>
-            <button onclick="applyCurrentBrain()">Apply</button>
-        </p>
+    <div id="rightControlsArea">
+        <div id="brains">
+            <p class="brainType">
+                Current brain
+                <textarea name="" id="currentBrain" cols="30" rows="10"></textarea>
+                <button onclick="copyCurrentBrain()">Copy</button>
+                <!--            <button onclick="copyWinnerCar()">Copy car</button>-->
+            </p>
+            <p class="brainType">
+                Custom brain
+                <textarea name="" id="customBrain" cols="30" rows="10"></textarea>
+                <button onclick="applyCurrentBrain()">Apply</button>
+            </p>
+        </div>
+
+        <hr>
+
+        <div id="trainNavigation">
+            <button onclick="reloadWithIca(1)">Enter test mode</button>
+            <button onclick="reloadWithIca(prompt('Initial cars amount:'))">Enter training mode</button>
+        </div>
     </div>
 
 

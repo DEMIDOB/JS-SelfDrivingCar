@@ -1,21 +1,17 @@
 
 
-function generateCars(carsAmount, mutationAmount = 0.05) {
+function generateCars(carsAmount, leader, mutationAmount = 0.05) {
     const cars = [];
-    let leaderBrain = null;
-
-    if (localStorage.getItem("bestBrain")) {
-        leaderBrain = JSON.parse(localStorage.getItem("bestBrain"));
-        leader.brain = leaderBrain;
-    }
 
     cars.push(leader);
+
+    const bestBrain = localStorage.getItem("bestBrain");
 
     for (let i = 1; i < carsAmount; ++i) {
         cars.push(new Car(leader.x, leader.y, 30, 50, "AI"));
 
-        if (leaderBrain) {
-            cars[i].brain = JSON.parse(localStorage.getItem("bestBrain"));
+        if (mutationAmount > 0 && bestBrain) {
+            cars[i].brain = JSON.parse(bestBrain);
             NeuNet.mutate(cars[i].brain, mutationAmount);
         }
     }
