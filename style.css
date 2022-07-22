@@ -49,8 +49,11 @@ button:hover {
     font-weight: bolder;
 }
 
+#rightControlsArea button {
+    padding: 5px 15px;
+}
+
 .brainType button {
-    padding: 5px;
     margin-top: 10px;
 }
 
